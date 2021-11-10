@@ -9,7 +9,7 @@ require('dotenv').config()
 const app = express()
 const port = process.env.PORT || 5000
 
-var serviceAccount = require('./destino-7072b-firebase-adminsdk-j4kwp-656e6a0ac6.json')
+var serviceAccount = require('./shadehouse-d69c2-firebase-adminsdk.json')
 
 admin.initializeApp({
    credential: admin.credential.cert(serviceAccount),
@@ -30,12 +30,12 @@ const client = new MongoClient(uri, {
 async function run() {
    try {
       await client.connect()
-      const database = client.db('destinoDB')
-      const destinoCollection = database.collection('services')
-      const destinoGallaryCollection = database.collection('gallary')
-      const destinoTestimonyCollection = database.collection('testimony')
-      const destinoBookingCollection = database.collection('bookings')
-      const destinoOrdersCollection = database.collection('orders')
+      const database = client.db('shadehouseDB')
+      const shadehouseCollection = database.collection('products')
+      const shadehouseGallaryCollection = database.collection('gallary')
+      const shadehousereviewsCollection = database.collection('reviews')
+      const shadehouseBookingCollection = database.collection('bookings')
+      const shadehouseOrdersCollection = database.collection('orders')
       const VerifyToken = async (req, res, next) => {
          //    console.log(req.headers.authorization)
          if (
@@ -54,23 +54,23 @@ async function run() {
       }
 
       // All GET API
-      app.get('/services', async (req, res) => {
-         const cursor = destinoCollection.find({})
-         const services = await cursor.toArray()
-         res.send(services)
+      app.get('/products', async (req, res) => {
+         const cursor = shadehouseCollection.find({})
+         const products = await cursor.toArray()
+         res.send(products)
       })
       app.get('/gallary', async (req, res) => {
-         const cursor = destinoGallaryCollection.find({})
+         const cursor = shadehouseGallaryCollection.find({})
          const images = await cursor.toArray()
          res.send(images)
       })
-      app.get('/testimony', async (req, res) => {
-         const cursor = destinoTestimonyCollection.find({})
-         const testimony = await cursor.toArray()
-         res.send(testimony)
+      app.get('/reviews', async (req, res) => {
+         const cursor = shadehousereviewsCollection.find({})
+         const reviews = await cursor.toArray()
+         res.send(reviews)
       })
       app.get('/myBookings', async (req, res) => {
-         const cursor = destinoBookingCollection.find({})
+         const cursor = shadehouseBookingCollection.find({})
          const mybookings = await cursor.toArray()
          res.send(mybookings)
       })
@@ -79,7 +79,7 @@ async function run() {
          console.log(email, req.decodedUserEmail)
          if (req.decodedUserEmail === email) {
             const query = { email: email }
-            const cursor = destinoOrdersCollection.find(query)
+            const cursor = shadehouseOrdersCollection.find(query)
             const myOrders = await cursor.toArray()
             res.send(myOrders)
          } else {
@@ -89,20 +89,20 @@ async function run() {
       })
 
       // GET Single Service
-      app.get('/services/:id', async (req, res) => {
+      app.get('/products/:id', async (req, res) => {
          const id = req.params.id
          console.log('getting specific service', id)
          const query = { _id: ObjectId(id) }
-         const service = await destinoCollection.findOne(query)
+         const service = await shadehouseCollection.findOne(query)
          res.json(service)
       })
 
       // All POST API
-      app.post('/services', async (req, res) => {
+      app.post('/products', async (req, res) => {
          const service = req.body
          console.log('hit the post api', service)
 
-         const result = await destinoCollection.insertOne(service)
+         const result = await shadehouseCollection.insertOne(service)
          console.log(result)
          res.json(result)
       })
@@ -110,15 +110,15 @@ async function run() {
          const gallary = req.body
          console.log('hit the post api', gallary)
 
-         const result = await destinoGallaryCollection.insertOne(gallary)
+         const result = await shadehouseGallaryCollection.insertOne(gallary)
          console.log(result)
          res.json(result)
       })
-      app.post('/testimony', async (req, res) => {
-         const testimony = req.body
-         console.log('hit the post api', testimony)
+      app.post('/reviews', async (req, res) => {
+         const reviews = req.body
+         console.log('hit the post api', reviews)
 
-         const result = await destinoTestimonyCollection.insertOne(testimony)
+         const result = await shadehousereviewsCollection.insertOne(reviews)
          console.log(result)
          res.json(result)
       })
@@ -126,14 +126,14 @@ async function run() {
          const bookings = req.body
          console.log('hit the post api', bookings)
 
-         const result = await destinoBookingCollection.insertOne(bookings)
+         const result = await shadehouseBookingCollection.insertOne(bookings)
          console.log(result)
          res.json(result)
       })
       app.post('/orders', async (req, res) => {
          const order = req.body
          console.log('hit the post api', order)
-         const result = await destinoOrdersCollection.insertOne(orders)
+         const result = await shadehouseOrdersCollection.insertOne(orders)
          console.log(result)
          res.json(result)
       })
@@ -142,23 +142,23 @@ async function run() {
       app.put('/bookings/:id', async (req, res) => {
          const id = req.params.id
          const query = { _id: ObjectId(id) }
-         const result = await destinoBookingCollection.updateOne(query, {
+         const result = await shadehouseBookingCollection.updateOne(query, {
             $set: { status: 'Accepted' },
          })
          res.json(result)
       })
 
       //All DELETE API
-      app.delete('/services/:id', async (req, res) => {
+      app.delete('/products/:id', async (req, res) => {
          const id = req.params.id
          const query = { _id: ObjectId(id) }
-         const result = await destinoCollection.deleteOne(query)
+         const result = await shadehouseCollection.deleteOne(query)
          res.json(result)
       })
       app.delete('/bookings/:id', async (req, res) => {
          const id = req.params.id
          const query = { _id: ObjectId(id) }
-         const result = await destinoBookingCollection.deleteOne(query)
+         const result = await shadehouseBookingCollection.deleteOne(query)
          res.json(result)
       })
    } finally {
@@ -171,9 +171,9 @@ run().catch(console.dir)
 // Server checking
 
 app.get('/', (req, res) => {
-   res.send('Running Destino Server')
+   res.send('Running shadehouse Server')
 })
 
 app.listen(port, () => {
-   console.log('Running destino Server on port', port)
+   console.log('Running shadehouse Server on port', port)
 })
