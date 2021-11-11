@@ -69,7 +69,7 @@ async function run() {
          const reviews = await cursor.toArray()
          res.send(reviews)
       })
-      app.get('/mypurchase', async (req, res) => {
+      app.get('/purchase', async (req, res) => {
          const cursor = shadehousePurchaseCollection.find({})
          const mypurchase = await cursor.toArray()
          res.send(mypurchase)
@@ -143,7 +143,7 @@ async function run() {
          const id = req.params.id
          const query = { _id: ObjectId(id) }
          const result = await shadehousePurchaseCollection.updateOne(query, {
-            $set: { status: 'Accepted' },
+            $set: { status: 'Shipped' },
          })
          res.json(result)
       })
