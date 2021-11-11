@@ -34,7 +34,7 @@ async function run() {
       const shadehouseCollection = database.collection('products')
       const shadehouseGallaryCollection = database.collection('gallary')
       const shadehousereviewsCollection = database.collection('reviews')
-      const shadehouseBookingCollection = database.collection('bookings')
+      const shadehousePurchaseCollection = database.collection('purchase')
       const shadehouseOrdersCollection = database.collection('orders')
       const VerifyToken = async (req, res, next) => {
          //    console.log(req.headers.authorization)
@@ -69,10 +69,10 @@ async function run() {
          const reviews = await cursor.toArray()
          res.send(reviews)
       })
-      app.get('/myBookings', async (req, res) => {
-         const cursor = shadehouseBookingCollection.find({})
-         const mybookings = await cursor.toArray()
-         res.send(mybookings)
+      app.get('/mypurchase', async (req, res) => {
+         const cursor = shadehousePurchaseCollection.find({})
+         const mypurchase = await cursor.toArray()
+         res.send(mypurchase)
       })
       app.get('/orders', VerifyToken, async (req, res) => {
          const email = req.query.email
@@ -122,11 +122,11 @@ async function run() {
          console.log(result)
          res.json(result)
       })
-      app.post('/bookings', async (req, res) => {
-         const bookings = req.body
-         console.log('hit the post api', bookings)
+      app.post('/purchase', async (req, res) => {
+         const purchase = req.body
+         console.log('hit the post api', purchase)
 
-         const result = await shadehouseBookingCollection.insertOne(bookings)
+         const result = await shadehousePurchaseCollection.insertOne(purchase)
          console.log(result)
          res.json(result)
       })
@@ -139,10 +139,10 @@ async function run() {
       })
 
       //All PUT API
-      app.put('/bookings/:id', async (req, res) => {
+      app.put('/purchase/:id', async (req, res) => {
          const id = req.params.id
          const query = { _id: ObjectId(id) }
-         const result = await shadehouseBookingCollection.updateOne(query, {
+         const result = await shadehousePurchaseCollection.updateOne(query, {
             $set: { status: 'Accepted' },
          })
          res.json(result)
@@ -155,10 +155,10 @@ async function run() {
          const result = await shadehouseCollection.deleteOne(query)
          res.json(result)
       })
-      app.delete('/bookings/:id', async (req, res) => {
+      app.delete('/purchase/:id', async (req, res) => {
          const id = req.params.id
          const query = { _id: ObjectId(id) }
-         const result = await shadehouseBookingCollection.deleteOne(query)
+         const result = await shadehousePurchaseCollection.deleteOne(query)
          res.json(result)
       })
    } finally {
