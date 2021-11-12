@@ -9,7 +9,9 @@ require('dotenv').config()
 const app = express()
 const port = process.env.PORT || 5000
 
-var serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT
+
+
+var serviceAccount = require("./shadehouse-d69c2-firebase-adminsdk.json")
 
 admin.initializeApp({
    credential: admin.credential.cert(serviceAccount),
@@ -74,7 +76,6 @@ async function run() {
          const mypurchase = await cursor.toArray()
          res.send(mypurchase)
       })
-      
 
       // GET Single Service
       app.get('/products/:id', async (req, res) => {
