@@ -36,12 +36,12 @@ async function run() {
       const shadehousereviewsCollection = database.collection('reviews')
       const shadehousePurchaseCollection = database.collection('purchase')
       const shadehouseOrdersCollection = database.collection('orders')
+      const shadehouseUsersCollection = database.collection('users')
       const VerifyToken = async (req, res, next) => {
          //    console.log(req.headers.authorization)
          if (
-            req.headers.authorization && req.headers.authorization.startsWith(
-               'Bearer ',
-            )
+            req.headers.authorization &&
+            req.headers.authorization.startsWith('Bearer ')
          ) {
             const token = req.headers.authorization.split('Bearer ')[1]
             //   console.log('verifying token', token)
@@ -96,13 +96,33 @@ async function run() {
          const service = await shadehouseCollection.findOne(query)
          res.json(service)
       })
+      app.get('/user/:email', async (req, res) => {
+         const email = req.params.email
+         console.log('getting specific service', email)
+         const query = { email:email }
+         const user = await shadehouseUsersCollection.findOne(query)
+          let isAdmin = false
+          console.log(user);
+         if (user && user.role == 'admin') {
+            isAdmin = true
+         }
+         res.json({ admin: isAdmin })
+      })
 
       // All POST API
+      app.post('/user', async (req, res) => {
+         const user = req.body
+         console.log('hit the post api', user)
+
+         const result = await shadehouseUsersCollection.insertOne(user)
+         console.log(result)
+         res.json(result)
+      })
       app.post('/products', async (req, res) => {
-         const service = req.body
+         const product = req.body
          console.log('hit the post api', service)
 
-         const result = await shadehouseCollection.insertOne(service)
+         const result = await shadehouseCollection.insertOne(product)
          console.log(result)
          res.json(result)
       })
@@ -145,6 +165,36 @@ async function run() {
          const result = await shadehousePurchaseCollection.updateOne(query, {
             $set: { status: 'Shipped' },
          })
+         res.json(result)
+      })
+      app.put('/user', async (req, res) => {
+         const user = req.body
+         console.log('hit the post api', user)
+         const filter = { email: user.email }
+         const option = { upsert: true }
+         const updateDoc = {
+            $set: user,
+         }
+         const result = await shadehouseUsersCollection.updateOne(
+            filter,
+            updateDoc,
+            option,
+         )
+         console.log(result)
+         res.json(result)
+      })
+      app.put('/user/admin', async (req, res) => {
+         const user = req.body
+         console.log('hit the post api', user)
+         const filter = { email: user.email }
+         const updateDoc = {
+            $set: { role: 'admin' },
+         }
+         const result = await shadehouseUsersCollection.updateOne(
+            filter,
+            updateDoc,
+         )
+         console.log(result)
          res.json(result)
       })
 
