@@ -25,7 +25,6 @@ const client = new MongoClient(uri, {
    useNewUrlParser: true,
    useUnifiedTopology: true,
 })
-//    Token varification
 
 async function run() {
    try {
@@ -37,6 +36,7 @@ async function run() {
       const shadehousePurchaseCollection = database.collection('purchase')
       const shadehouseOrdersCollection = database.collection('orders')
       const shadehouseUsersCollection = database.collection('users')
+      //    Token varification
       const VerifyToken = async (req, res, next) => {
          //    console.log(req.headers.authorization)
          if (
@@ -74,19 +74,7 @@ async function run() {
          const mypurchase = await cursor.toArray()
          res.send(mypurchase)
       })
-      app.get('/orders', VerifyToken, async (req, res) => {
-         const email = req.query.email
-         console.log(email, req.decodedUserEmail)
-         if (req.decodedUserEmail === email) {
-            const query = { email: email }
-            const cursor = shadehouseOrdersCollection.find(query)
-            const myOrders = await cursor.toArray()
-            res.send(myOrders)
-         } else {
-            res.status(401).json({ message: 'user not authorized' })
-            console.log('sorry')
-         }
-      })
+      
 
       // GET Single Service
       app.get('/products/:id', async (req, res) => {
@@ -99,10 +87,10 @@ async function run() {
       app.get('/user/:email', async (req, res) => {
          const email = req.params.email
          console.log('getting specific service', email)
-         const query = { email:email }
+         const query = { email: email }
          const user = await shadehouseUsersCollection.findOne(query)
-          let isAdmin = false
-          console.log(user);
+         let isAdmin = false
+         console.log(user)
          if (user && user.role == 'admin') {
             isAdmin = true
          }
@@ -120,7 +108,7 @@ async function run() {
       })
       app.post('/products', async (req, res) => {
          const product = req.body
-         console.log('hit the post api', service)
+         console.log('hit the post api', product)
 
          const result = await shadehouseCollection.insertOne(product)
          console.log(result)
@@ -183,19 +171,31 @@ async function run() {
          console.log(result)
          res.json(result)
       })
-      app.put('/user/admin', async (req, res) => {
+      app.put('/user/admin', VerifyToken, async (req, res) => {
          const user = req.body
+         const requester = req.decodedUserEmail
          console.log('hit the post api', user)
-         const filter = { email: user.email }
-         const updateDoc = {
-            $set: { role: 'admin' },
+         if (requester) {
+            const AccountInfo = await shadehouseUsersCollection.findOne({
+               email: requester,
+            })
+            if (AccountInfo.role === 'admin') {
+               const filter = { email: user.email }
+               const updateDoc = {
+                  $set: { role: 'admin' },
+               }
+               const result = await shadehouseUsersCollection.updateOne(
+                  filter,
+                  updateDoc,
+               )
+               console.log(result)
+               res.json(result)
+            }
+         } else {
+            res.status(403).json({
+               message: "you don't have access to make a admin",
+            })
          }
-         const result = await shadehouseUsersCollection.updateOne(
-            filter,
-            updateDoc,
-         )
-         console.log(result)
-         res.json(result)
       })
 
       //All DELETE API
